@@ -1,7 +1,7 @@
 import { AbstractConnector } from "@web3-react/abstract-connector";
 import { ConnectorUpdate } from "@web3-react/types";
 
-import { AuthProvider, OreIdOptions, UserChainAccount } from "oreid-js";
+import { AuthProvider, OreIdOptions, UserChainAccount, OreId } from "oreid-js";
 
 import OreIdProviderEip1193 from "oreid-provider";
 
@@ -28,7 +28,7 @@ export default class OreIdConnector extends AbstractConnector {
   private readonly oreIdOptions: OreIdOptions;
   private readonly authProvider: AuthProvider;
 
-  public oreId: any;
+  public oreId!: OreId;
 
   constructor({
     oreIdOptions,
