@@ -48,9 +48,10 @@ export class OreIdConnector extends AbstractConnector {
     }
 
     await this.oreId.popup.auth({ provider: this.authProvider });
-    const activeUser = await this.getActiveUser();
-    const chainId = chainNameIdMappings[activeUser.chainNetwork];
-    return { account: activeUser.chainAccount, chainId: chainId };
+    return {
+      account: await this.getAccount(),
+      chainId: await this.getChainId(),
+    };
   }
 
   public async getProvider(): Promise<any> {
@@ -58,36 +59,38 @@ export class OreIdConnector extends AbstractConnector {
   }
 
   public async getChainId(): Promise<string | number> {
-    const activeUser = await this.getActiveUser();
-    const chainId = chainNameIdMappings[activeUser.chainNetwork];
+    const oreIdAccount = await this.getOreIdAccount();
+    const chainId = chainNameIdMappings[oreIdAccount.chainNetwork];
     return chainId;
   }
-
+ 
   public async getAccount(): Promise<string | null> {
-    const activeUser = await this.getActiveUser();
-    return activeUser.chainAccount;
+    const oreIdAccount = await this.getOreIdAccount();
+    return oreIdAccount.chainAccount;
   }
 
   public deactivate(): void {
     this.oreId.logout();
   }
 
-  private async getActiveUser(): Promise<UserChainAccount> {
+  private async getOreIdAccount(): Promise<UserChainAccount> {
     if (!this.oreId) {
       throw new Error("OreId connector is not activated.");
     }
 
     const userData = await this.oreId.auth.user.getData();
 
-    const activeUser = userData.chainAccounts.find(
-      (chainAccount: { chainAccount: string | string[] }) =>
-        !chainAccount.chainAccount.includes("ore")
+    const oreIdAccount = userData.chainAccounts.find(
+      (chainAccount) =>
+        !chainAccount.chainAccount.includes("ore") &&
+        !chainAccount.defaultPermission.privateKeyStoredExterally &&
+        this.supportedChainIds?.includes(chainNameIdMappings[chainAccount.chainNetwork])
     );
 
-    if (!activeUser) {
-      throw new Error("No active user found.");
+    if (!oreIdAccount) {
+      throw new Error("This user's account's chain ids are not supported.");
     }
 
-    return activeUser;
+    return oreIdAccount;
   }
 }
