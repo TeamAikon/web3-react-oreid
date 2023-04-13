@@ -239,8 +239,8 @@ function TransferTokensButton() {
       from: account,
       to: '0xbe7707f5ce404db142e1379ea8ba646d150ebfd7',
       value: ethers.utils.parseEther('0.0001').toString(),
-      gasPrice: ethers.utils.parseUnits('10', 'gwei').toString(),
-      gasLimit: 21000,
+      gasPrice: ethers.utils.parseUnits('20', 'gwei').toString(),
+      gasLimit: 60000,
     }
 
     try {
@@ -250,7 +250,7 @@ function TransferTokensButton() {
       console.error('Error sending transaction:', error)
     }
   }, [library, account])
-
+  
   return (
     <button
       onClick={initiateValueTransfer}
@@ -405,7 +405,9 @@ function App() {
           </button>
         )}
 
-        <TransferTokensButton />
+        {!!(library && account) && (
+          <TransferTokensButton />
+        )}
 
         {!!(connector === connectorsByName[ConnectorNames.Network] && chainId) && (
           <button
